@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
-import java.util.Properties;
 
 
 @org.springframework.context.annotation.Configuration
@@ -23,7 +22,8 @@ public class HBaseConfigurationBase {
     @Bean
     public Connection configuration() {
 
-        if (!isOSLinux()) {
+        String os = System.getProperties().getProperty("os.name");
+        if (os != null && os.toLowerCase().indexOf("linux") > -1) {
             System.setProperty("hadoop.home.dir", hadoop_home);
         }
 
@@ -40,16 +40,5 @@ public class HBaseConfigurationBase {
             e.printStackTrace();
         }
         return connection;
-    }
-
-    public static boolean isOSLinux() {
-        Properties prop = System.getProperties();
-
-        String os = prop.getProperty("os.name");
-        if (os != null && os.toLowerCase().indexOf("linux") > -1) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
