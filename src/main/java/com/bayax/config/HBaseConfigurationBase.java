@@ -2,11 +2,14 @@ package com.bayax.config;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
+import java.io.IOException;
 import java.util.Properties;
 
 
@@ -18,7 +21,7 @@ public class HBaseConfigurationBase {
     private String hadoop_home;
 
     @Bean
-    public Configuration configuration() {
+    public Connection configuration() {
 
         if (!isOSLinux()) {
             System.setProperty("hadoop.home.dir", hadoop_home);
@@ -30,7 +33,13 @@ public class HBaseConfigurationBase {
         //conf.set("hbase.zookeeper.quorum","bayax-hdp01.hadoop,bayax-hdp02.hadoop,bayax-hdp03.hadoop");
         //conf.set("zookeeper.znode.parent", "/hbase-unsecure");
 
-        return conf;
+        Connection connection = null;
+        try {
+            connection = ConnectionFactory.createConnection(conf);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return connection;
     }
 
     public static boolean isOSLinux() {

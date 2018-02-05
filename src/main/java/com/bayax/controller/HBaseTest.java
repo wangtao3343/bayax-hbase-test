@@ -39,18 +39,32 @@ public class HBaseTest {
      * @return
      */
     @GetMapping(value="/scan/{tablename}")
-    public List<Cell> scan(@PathVariable("tablename") String tablename, @RequestParam("regexKey") String regexKey){
-        return hBaseService.scanRegexRowKey(tablename, regexKey);
+    public String scan(@PathVariable("tablename") String tablename, @RequestParam("regexKey") String regexKey){
+
+        long current = System.currentTimeMillis();
+
+        hBaseService.scanRegexRowKey(tablename, regexKey);
+
+        long end = System.currentTimeMillis();
+
+        return (end - current) + " ms";
     }
 
 
     @GetMapping(value="/put/{tablename}")
-    public void put(@PathVariable("tablename") String tablename,@RequestParam("key") String rowKey,
+    public String put(@PathVariable("tablename") String tablename,@RequestParam("key") String rowKey,
                     @RequestParam("f") String familyColumn,
                     @RequestParam("c") String columnNames,
                     @RequestParam("v") String  values){
 
+        long current = System.currentTimeMillis();
+
         hBaseService.putRowValue(tablename, rowKey, familyColumn, columnNames, values);
+
+        long end = System.currentTimeMillis();
+
+        return (end - current) + " ms";
+
     }
 
 }

@@ -1,10 +1,7 @@
 package com.bayax.service;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -23,12 +20,11 @@ public class HBaseServiceImpl {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private Configuration configuration;
+    private Connection connection;
 
     public String createTable(String tableName, String... families) {
         HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         try  {
-            Connection connection = ConnectionFactory.createConnection(configuration);
             Admin admin = connection.getAdmin();
 
             for (String family : families) {
@@ -58,8 +54,7 @@ public class HBaseServiceImpl {
     }
 
     public void deleteTable(String tableName) {
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Admin admin = connection.getAdmin()) {
+        try (Admin admin = connection.getAdmin()) {
             TableName table = TableName.valueOf(tableName);
             if (!admin.tableExists(TableName.valueOf(tableName))) {
                 logger.info("[" + tableName + "] is not existed. Delete failed!");
@@ -76,8 +71,7 @@ public class HBaseServiceImpl {
     }
 
     public void putRowValue(String tableName, String rowKey, String familyColumn, String columnName, String value) {
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Table table = connection.getTable(TableName.valueOf(tableName))) {
+        try (Table table = connection.getTable(TableName.valueOf(tableName))) {
             Put put = new Put(Bytes.toBytes(rowKey));
             put.addColumn(Bytes.toBytes(familyColumn), Bytes.toBytes(columnName), Bytes.toBytes(value));
             table.put(put);
@@ -90,8 +84,7 @@ public class HBaseServiceImpl {
     }
 
     public void putRowValueBatch(String tableName, String rowKey, String familyColumn, List<String> columnNames, List<String> values) {
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Table table = connection.getTable(TableName.valueOf(tableName))) {
+        try (Table table = connection.getTable(TableName.valueOf(tableName))) {
             Put put = new Put(Bytes.toBytes(rowKey));
             for (int j = 0; j < columnNames.size(); j++) {
                 put.addColumn(Bytes.toBytes(familyColumn), Bytes.toBytes(columnNames.get(j)), Bytes.toBytes(values.get(j)));
@@ -108,8 +101,7 @@ public class HBaseServiceImpl {
 
     public void putRowValueBatch(String tableName, String rowKey, String familyColumn, Map<String, String> columnValues) {
         logger.info("begin to update table:" + tableName + ",rowKey:" + rowKey + ",family:" + familyColumn + ",columnValues:" + columnValues.toString());
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Table table = connection.getTable(TableName.valueOf(tableName))) {
+        try (Table table = connection.getTable(TableName.valueOf(tableName))) {
             Put put = new Put(Bytes.toBytes(rowKey));
             for (Map.Entry<String, String> entry : columnValues.entrySet()) {
                 put.addColumn(Bytes.toBytes(familyColumn), Bytes.toBytes(entry.getKey()), Bytes.toBytes(entry.getValue()));
@@ -125,8 +117,7 @@ public class HBaseServiceImpl {
     }
 
     public List<Cell> scanRegexRowKey(String tableName, String regexKey) {
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Table table = connection.getTable(TableName.valueOf(tableName))) {
+        try (Table table = connection.getTable(TableName.valueOf(tableName))) {
             Scan scan = new Scan();
             Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL, new RegexStringComparator(regexKey));
             scan.setFilter(filter);
@@ -142,8 +133,7 @@ public class HBaseServiceImpl {
     }
 
     public void deleteAllColumn(String tableName, String rowKey) {
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Table table = connection.getTable(TableName.valueOf(tableName))) {
+        try (Table table = connection.getTable(TableName.valueOf(tableName))) {
             Delete delAllColumn = new Delete(Bytes.toBytes(rowKey));
             table.delete(delAllColumn);
             System.out.println("Delete AllColumn Success");
@@ -155,8 +145,7 @@ public class HBaseServiceImpl {
     }
 
     public void deleteColumn(String tableName, String rowKey, String familyName, String columnName) {
-        try (Connection connection = ConnectionFactory.createConnection(configuration);
-             Table table = connection.getTable(TableName.valueOf(tableName))) {
+        try (Table table = connection.getTable(TableName.valueOf(tableName))) {
             Delete delColumn = new Delete(Bytes.toBytes(rowKey));
             delColumn.addColumn(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
             table.delete(delColumn);
