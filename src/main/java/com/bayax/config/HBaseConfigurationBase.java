@@ -23,7 +23,7 @@ public class HBaseConfigurationBase {
     public Connection configuration() {
 
         String os = System.getProperties().getProperty("os.name");
-        if (os != null && os.toLowerCase().indexOf("linux") > -1) {
+        if (os != null && os.toLowerCase().indexOf("linux") == -1) {
             System.setProperty("hadoop.home.dir", hadoop_home);
         }
 
