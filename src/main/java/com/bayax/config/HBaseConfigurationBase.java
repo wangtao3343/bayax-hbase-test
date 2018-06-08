@@ -1,6 +1,5 @@
 package com.bayax.config;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -8,11 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
 
-@org.springframework.context.annotation.Configuration
+@Configuration
 public class HBaseConfigurationBase {
     private Logger logger= LoggerFactory.getLogger(HBaseConfigurationBase.class);
 
@@ -27,7 +27,7 @@ public class HBaseConfigurationBase {
             System.setProperty("hadoop.home.dir", hadoop_home);
         }
 
-        Configuration conf = HBaseConfiguration.create();
+        org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
 
         // 重新设置或者读取hbase-site.xml
         //conf.set("hbase.zookeeper.quorum","bayax-hdp01.hadoop,bayax-hdp02.hadoop,bayax-hdp03.hadoop");
